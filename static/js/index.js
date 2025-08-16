@@ -28,14 +28,30 @@ document.getElementById("limpar-transacoes").addEventListener("click", async fun
 async function carregar_transacoes() {
     const resposta = await fetch("/transacao")
     const dados = await resposta.json()
-
+    
     const transacoes = document.getElementById("transacoes")
     transacoes.innerHTML = ""
     
     let conteudo = ""
     dados.dados.forEach(dado => {
-       conteudo += `${dado.dataHora}: R$${dado.valor}<br>`
-
+        conteudo += `${dado.dataHora}: R$${dado.valor}<br>`
+        
     });
     transacoes.innerHTML = conteudo
 }
+
+document.getElementById("carregar-estatisticas").addEventListener("click", async function(e){
+    const resposta = await fetch("/estatistica")
+    const dados = await resposta.json()
+    const estatiscas = dados.dados
+    
+    const estatiscasCampo = document.getElementById("estatisticas")
+    estatiscasCampo.innerHTML = ""
+    
+    estatiscasCampo.innerHTML = `Quantidade: ${estatiscas.count} <br>
+                                 Soma: R$${estatiscas.sum} <br>
+                                 Média: R$${estatiscas.avg} <br>
+                                 Menor valor: R$${estatiscas.min} <br>
+                                 Maior valor: R$${estatiscas.max} <br>`
+})
+

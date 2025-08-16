@@ -49,6 +49,7 @@ def registrar_transcao():
     }
 
     memoria.append(transacao)
+    print(memoria)
     return jsonify({"dados": memoria,
                     "mensagem": "Transção feita com sucesso!"}), 201
 
@@ -59,6 +60,36 @@ def limpar_transacoes():
 
     return jsonify({"dados": memoria,
                     "mensagem": "Todas as transações foram apagadas!"}), 200
+
+@app.route("/estatistica")
+def estatistica():
+    if len(memoria) == 0:
+        dados = {
+            "count": 0,
+            "sum": 0,
+            "avg": 0,
+            "min": 0,
+            "max": 0,
+        }
+
+        return jsonify({"dados": dados,
+                        "mensagem": "Estatísticas exibidas com sucesso!"}), 200
+    
+        
+    valores = [item["valor"] for item in memoria]
+
+    dados = {
+        "count": len(valores),
+        "sum": sum(valores),
+        "avg": round(float(sum(valores) / len(valores)), 2),
+        "min": min(valores),
+        "max": max(valores),
+    }
+
+    return jsonify({"dados": dados,
+                    "mensagem": "Estatísticas exibidas com sucesso!"}), 200
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)
