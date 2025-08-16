@@ -10,12 +10,20 @@ memoria = []
 def index():
     return render_template("index.html")
 
+@app.route("/transacao")
+def carregar_transacoes():
+    return jsonify({"dados": memoria}), 201
+
+
 @app.route("/transacao", methods=["POST"])
 def registrar_transcao():
     valor = request.get_json()
     dataHora = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=-3))).strftime("%Y-%m-%dT%H:%M:%S%:z")
 
     try:
+        if valor is None:
+            return jsonify({"mensagem": "O valor não pode estar vazio."}), 422
+
         if "," in str(valor):
             valor = str(valor).replace(".", "").replace(",", ".")
             valor = float(valor)
@@ -31,14 +39,26 @@ def registrar_transcao():
         mensagem = "Erro! O valor digitado não é valido."
         return jsonify({"mensagem": mensagem}), 400
 
+    data_formatada = str(dataHora).split("T")[0]
+    data_formatada = data_formatada.split("-")
+    data_formatada = f"{data_formatada[2]}/{data_formatada[1]}/{data_formatada[0]}"
+
     transacao = {
         "valor": valor,
-        "dataHora": dataHora
+        "dataHora": data_formatada
     }
 
     memoria.append(transacao)
-    return jsonify({"mensagem": "Transção feita com sucesso!"}), 201
+    return jsonify({"dados": memoria,
+                    "mensagem": "Transção feita com sucesso!"}), 201
 
+@app.route("/transacao", methods=["DELETE"])
+def limpar_transacoes():
+    memoria.clear()
+    print(memoria)
+
+    return jsonify({"dados": memoria,
+                    "mensagem": "Todas as transações foram apagadas!"}), 200
 
 if __name__ == "__main__":
     app.run(debug=True)
